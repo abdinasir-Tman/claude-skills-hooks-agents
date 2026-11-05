@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "keyd-tools",
+  "name": "tman",
   "description": "Claude Code plugins by Keyd Solutions: GitHub Issues work tracking, a verification gate with gap / security / query reviewers, and no-waterfall data-access rules.",
   "owner": {
     "name": "abdinasir-Tman",

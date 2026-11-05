@@ -35,7 +35,7 @@ Everything lives in [`claude-review-system/`](claude-review-system/). Its own
 
 ```
 .claude-plugin/
-└── marketplace.json                   makes this repo a plugin marketplace ("keyd-tools")
+└── marketplace.json                   makes this repo a plugin marketplace ("tman")
 
 claude-review-system/                  the "review-system" plugin
 ├── .claude-plugin/plugin.json         plugin name, version, author
@@ -156,25 +156,25 @@ Or in two steps (works on older versions too):
 
 ```
 /plugin marketplace add abdinasir-Tman/claude-skills-hooks-agents
-/plugin install review-system@keyd-tools
+/plugin install review-system@tman
 ```
 
 **From the terminal:**
 
 ```bash
 claude plugin marketplace add abdinasir-Tman/claude-skills-hooks-agents
-claude plugin install review-system@keyd-tools
+claude plugin install review-system@tman
 ```
 
 Then run `/reload-plugins` (or start a new session). Done.
 
 | Command | What it does |
 |---|---|
-| `claude plugin marketplace update keyd-tools` | fetch the latest catalog |
-| `claude plugin update review-system@keyd-tools` | update the plugin |
-| `claude plugin disable review-system@keyd-tools` | turn it off without uninstalling |
-| `claude plugin uninstall review-system@keyd-tools` | remove it |
-| `claude plugin install review-system@keyd-tools --scope project` | install for one repo only (shared with the team via `.claude/settings.json`) |
+| `claude plugin marketplace update tman` | fetch the latest catalog |
+| `claude plugin update review-system@tman` | update the plugin |
+| `claude plugin disable review-system@tman` | turn it off without uninstalling |
+| `claude plugin uninstall review-system@tman` | remove it |
+| `claude plugin install review-system@tman --scope project` | install for one repo only (shared with the team via `.claude/settings.json`) |
 
 **Requirements:** the GitHub CLI **`gh` 2.102+** (issue types, sub-issues, blocked-by) and `python3` for the hooks.
 

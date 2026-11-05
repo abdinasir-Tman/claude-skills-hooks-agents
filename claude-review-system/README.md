@@ -319,14 +319,14 @@ store-owned and must filter `storeId` → CRITICAL tenant leak. The built-in rem
 
 ## 6. Installing
 
-This folder is the Claude Code plugin **`review-system`**; the repo root is its marketplace (`keyd-tools`).
+This folder is the Claude Code plugin **`review-system`**; the repo root is its marketplace (`tman`).
 
 ```
 /plugin install review-system --marketplace abdinasir-Tman/claude-skills-hooks-agents
 ```
 
 or `claude plugin marketplace add abdinasir-Tman/claude-skills-hooks-agents` then
-`claude plugin install review-system@keyd-tools`. Run `/reload-plugins` or start a new session.
+`claude plugin install review-system@tman`. Run `/reload-plugins` or start a new session.
 
 The plugin brings the skills (`/review-system:<skill>`), the agents (`review-system:<agent>`), both status hooks
 (`hooks/hooks.json`) and a SessionStart hook that adds `CLAUDE-data-access-section.md` to every session — nothing
