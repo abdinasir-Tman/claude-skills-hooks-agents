@@ -1,0 +1,13 @@
+# Data access: use the relations, no waterfalls
+
+Applies whenever Claude writes or changes a DB query, a model/relation, an endpoint that returns data, or code that loads data in a page or screen — details and per-stack ✗/✓ code in the `data-access` skill.
+- **Detect the repo's stack first** (its `.claude/review/gap-rules.md` → Data access, else the package's manifest/lockfile) and use that ORM/driver and data layer at its installed version — never assume Prisma, RTK Query or any other library.
+- **Read the schema and use its relations:** related data comes in the same query through the repo's eager-load API (e.g. `include`/`select`, `populate`, `JOIN`), not a second query by id.
+- **Never load something only to read an id you already have** (route param, session, request body, the user/tenant the middleware attached).
+- **Independent queries run together** (e.g. `Promise.all`, `$transaction([...])`, `pgx.Batch`, `errgroup`) — never `await` after `await`.
+- **No query inside a loop** — batch by ids, bulk writes, nested writes.
+- **Frontend: the route is the page's data list.** Every page declares all its requests in one place that runs before it renders (the route loader, or the stack's equivalent — the repo's route to copy is in gap-rules.md → Data access) and starts them together from route params and session; components read that data from the cache and start a request only on a user action (open, expand, click, debounced typing).
+- **Only what's on screen:** no requests for closed dialogs, hidden tabs, collapsed panels or other pages; the shell/layout loads only small data every page shows; a child never waits for its parent's data to get an id the route already has; data always shown together comes from one endpoint that returns the related names itself — never load a whole list to turn ids into names.
+- **Refresh on purpose:** each query states how it stays fresh (`staleTime`, a realtime event, or polling while shown); saves update the cache from their response and invalidate only the keys they changed; a realtime event updates the cache or invalidates — never both. `useQuery`/loaders for server data; `useEffect` only for outside systems (sockets, timers, browser APIs) — never to fetch, or to refetch after a user action.
+- Chaining existing single-record helpers (`getUser()` then `getPosts()`) is not reuse — extend the query or add one purpose-built query.
+- Plan the queries before the code (the issue's **Query plan / Data loading plan**) and prove them after: statements per request from the query log, the same for 1 and 20 rows; for screens, the network log shows exactly the planned requests and nothing else.
