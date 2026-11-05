@@ -8,8 +8,8 @@ description: Learn a repository once and write its review rulebooks — `.claude
 Writes the per-repo rulebooks that the global reviewers (`gap-reviewer`, `security-reviewer`, `query-reviewer`) and the `data-access` skill read. The reviewers carry the **method**; these files carry the **repo's facts**. Nothing is assumed — every rule comes from evidence in this repo or from the user.
 
 Files:
-- Stack checklists: `~/.claude/skills/review-rules/stacks/*.md` (Detect / Discovery / Gap checks / Security checks).
-- Templates: `~/.claude/skills/review-rules/templates/security-rules.md`, `gap-rules.md`.
+- Stack checklists: `${CLAUDE_PLUGIN_ROOT}/skills/review-rules/stacks/*.md` (Detect / Discovery / Gap checks / Security checks).
+- Templates: `${CLAUDE_PLUGIN_ROOT}/skills/review-rules/templates/security-rules.md`, `gap-rules.md`.
 - Output: `<repo root>/.claude/review/security-rules.md` and `gap-rules.md`.
 
 ## Modes

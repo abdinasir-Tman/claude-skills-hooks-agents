@@ -1,0 +1,18 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "keyd-tools",
+  "description": "Claude Code plugins by Keyd Solutions: GitHub Issues work tracking, a verification gate with gap / security / query reviewers, and no-waterfall data-access rules.",
+  "owner": {
+    "name": "abdinasir-Tman",
+    "url": "https://github.com/abdinasir-Tman"
+  },
+  "plugins": [
+    {
+      "name": "review-system",
+      "source": "./claude-review-system",
+      "description": "Track every job in GitHub Issues and pass a verification gate (gap review, security review, query review, end-to-end test) before review. Stops request waterfalls and N+1 queries in any stack.",
+      "category": "development",
+      "keywords": ["code-review", "security", "github-issues", "n+1", "database", "workflow"]
+    }
+  ]
+}

@@ -26,12 +26,12 @@ Built 2026-11-03. Everything described here is in this folder.
                 ┌──────────────────────────────────────────────────────────────┐
                 │ <repo>/.claude/review/gap-rules.md + security-rules.md       │
                 │ (written once per repo by review-rules from the code;        │
-                │  you confirm)  + ~/.claude/skills/review-rules/stacks/*.md   │
+                │  you confirm)  + the plugin's review-rules/stacks/*.md      │
                 └──────────────────────────────────────────────────────────────┘
 ```
 
-- **Skills** = instructions: *how* something is done. Global, in `~/.claude/skills/`.
-- **Agents** = workers that run in a fresh, read-only context, only when a skill starts them. Global, in `~/.claude/agents/`.
+- **Skills** = instructions: *how* something is done. Shipped in the plugin's `skills/`.
+- **Agents** = workers that run in a fresh, read-only context, only when a skill starts them. Shipped in the plugin's `agents/`.
 - **Rules files** = the facts of one repo. Live inside each repo, committed to git.
 - **Stack checklists** = generic checks and code patterns per technology; a repo loads only the ones it uses.
 
@@ -187,7 +187,7 @@ nothing independent checked it.
 ### How it's stopped — one rule set, enforced at every stage
 | Stage | Piece | What it does |
 |---|---|---|
-| Always loaded | `~/.claude/CLAUDE.md` → *Data access* | 8 short rules in every session, even outside the issue flow |
+| Always loaded | `CLAUDE-data-access-section.md` (SessionStart hook) | 8 short rules in every session, even outside the issue flow |
 | While writing | `data-access` skill | detect the repo's stack → read the schema → pick the shape → write the plan → code → check |
 | Per technology | stack checklists → *Data access* | ✗/✓ code for Prisma, Mongoose, SQL, Go/pgx, Firestore, Express, React (RTK/TanStack/react-router), Next.js, Expo |
 | Per repo | `gap-rules.md` → *Data access* | that repo's ORM + version, how its eager-load runs, batch/transaction/parallel APIs, query log switch, data layer |
@@ -317,23 +317,25 @@ store-owned and must filter `storeId` → CRITICAL tenant leak. The built-in rem
 
 ---
 
-## 6. Installing on another machine
+## 6. Installing
 
-Copy the folders into place and start a **new** Claude Code session (agents load at session start):
+This folder is the Claude Code plugin **`review-system`**; the repo root is its marketplace (`keyd-tools`).
 
-```bash
-cp -R skills/review-rules skills/gap-review skills/repo-security-review skills/query-review \
-      skills/data-access skills/github-issues ~/.claude/skills/
-cp agents/gap-reviewer.md agents/security-reviewer.md agents/query-reviewer.md ~/.claude/agents/
-cp hooks/*.py ~/.claude/hooks/   # then register both as PreToolUse (matcher: Bash) commands in ~/.claude/settings.json
+```
+/plugin install review-system --marketplace abdinasir-Tman/claude-skills-hooks-agents
 ```
 
-Also append `CLAUDE-data-access-section.md` (in this folder) to that machine's `~/.claude/CLAUDE.md` so the
-rules are loaded in every session.
+or `claude plugin marketplace add abdinasir-Tman/claude-skills-hooks-agents` then
+`claude plugin install review-system@keyd-tools`. Run `/reload-plugins` or start a new session.
 
-Then, in each repo: `/review-rules` → confirm the questions → commit `.claude/review/`.
+The plugin brings the skills (`/review-system:<skill>`), the agents (`review-system:<agent>`), both status hooks
+(`hooks/hooks.json`) and a SessionStart hook that adds `CLAUDE-data-access-section.md` to every session — nothing
+to copy and no `settings.json` or `CLAUDE.md` edits.
+
+Then, in each repo: `/review-system:review-rules` → confirm the questions → commit `.claude/review/`.
 
 Notes:
-- The skills and agents find the stack checklists at `~/.claude/skills/review-rules/stacks/` and the data-access skill at `~/.claude/skills/data-access/`, so keep those paths.
-- In a repo that has its **own** `.claude/agents/gap-reviewer.md` or `security-reviewer.md`, the repo's agent wins over the global one with the same name. Run `/review-rules` there (it carries the old content over), then delete the old repo agents.
+- Skills and agents find their bundled files through `${CLAUDE_PLUGIN_ROOT}`, so keep the folder layout as it is.
+- In a repo that has its **own** `.claude/agents/gap-reviewer.md` or `security-reviewer.md`, run `/review-system:review-rules` there (it carries the old content over), then delete the old repo agents.
+- An older manual install in `~/.claude/skills`, `~/.claude/agents`, `~/.claude/hooks` (plus its `settings.json` hook entries and the `CLAUDE.md` section) should be removed, or everything loads twice.
 - `github-issues` is specific to the Keyd-Solutions org and its board; the review and data-access skills work in any repo.

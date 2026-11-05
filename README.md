@@ -7,6 +7,12 @@ engineer on any repository:
 - every change passes a **verification gate** — gap review, security review, query review and an end-to-end test — before it goes to review;
 - Claude **never writes request waterfalls or N+1 queries**, in whatever stack the repo uses (Prisma, Mongoose, raw SQL, Go/pgx, Firestore, React, Next.js, Expo, …).
 
+It installs as one Claude Code plugin, **`review-system`**:
+
+```
+/plugin install review-system --marketplace abdinasir-Tman/claude-skills-hooks-agents
+```
+
 Everything lives in [`claude-review-system/`](claude-review-system/). Its own
 [README](claude-review-system/README.md) is the full manual; this page is the map.
 
@@ -28,11 +34,15 @@ Everything lives in [`claude-review-system/`](claude-review-system/). Its own
 ## What's in this folder
 
 ```
-claude-review-system/
+.claude-plugin/
+└── marketplace.json                   makes this repo a plugin marketplace ("keyd-tools")
+
+claude-review-system/                  the "review-system" plugin
+├── .claude-plugin/plugin.json         plugin name, version, author
 ├── README.md                          full manual (workflow, gate, data-access rules, examples)
-├── CLAUDE-data-access-section.md      rules to append to ~/.claude/CLAUDE.md (loaded every session)
+├── CLAUDE-data-access-section.md      always-on rules, added to every session by a SessionStart hook
 │
-├── skills/                            → copy to ~/.claude/skills/
+├── skills/
 │   ├── github-issues/                 work tracking: issues, plans, statuses, verification gate
 │   │   ├── SKILL.md
 │   │   └── reference.md               known gaps, moving tickets from Jira
@@ -45,12 +55,13 @@ claude-review-system/
 │   ├── query-review/SKILL.md          "any waterfalls, N+1s or wasted requests?"
 │   └── data-access/SKILL.md           how to write queries and page data loading
 │
-├── agents/                            → copy to ~/.claude/agents/
+├── agents/
 │   ├── gap-reviewer.md                read-only reviewer started by gap-review
 │   ├── security-reviewer.md           read-only reviewer started by repo-security-review
 │   └── query-reviewer.md              read-only reviewer started by query-review
 │
-└── hooks/                             → copy to ~/.claude/hooks/
+└── hooks/
+    ├── hooks.json                     registers the hooks below
     ├── github-in-dev-ready.py         blocks "In Dev" until the issue spec is complete
     └── github-in-review-checklist.py  blocks "In Review" while checklist boxes are unticked
 ```
@@ -81,16 +92,16 @@ Each one has up to five parts — **Detect**, **Discovery**, **Gap checks**, **S
                                      ▼
         <repo>/.claude/review/gap-rules.md + security-rules.md
         (written once per repo by /review-rules, confirmed by you)
-        + ~/.claude/skills/review-rules/stacks/*.md
+        + the plugin's review-rules/stacks/*.md
 ```
 
 | Kind | What it is | Where it lives |
 |---|---|---|
-| **Skill** | Instructions — *how* something is done | `~/.claude/skills/` (global) |
-| **Agent** | A worker in a fresh, read-only context, started only by a skill | `~/.claude/agents/` (global) |
-| **Hook** | A script Claude Code runs before a tool call; can refuse it | `~/.claude/hooks/` + `settings.json` |
+| **Skill** | Instructions — *how* something is done | the plugin's `skills/` |
+| **Agent** | A worker in a fresh, read-only context, started only by a skill | the plugin's `agents/` |
+| **Hook** | A script Claude Code runs before a tool call or at session start; can refuse a call | the plugin's `hooks/hooks.json` |
 | **Rules files** | The facts of *one* repo (threat model, conventions, data stack) | `<repo>/.claude/review/`, committed |
-| **Stack checklists** | Generic checks and code patterns per technology | `review-rules/stacks/` |
+| **Stack checklists** | Generic checks and code patterns per technology | the plugin's `skills/review-rules/stacks/` |
 
 The **method** is the same for every repo; the **rules** differ per repo. Nothing assumes a particular library —
 every piece first detects what the repo actually uses.
@@ -132,44 +143,60 @@ Both are `PreToolUse` hooks on `Bash`. They watch `gh project item-edit … --va
 
 ## Install
 
-Requirements: [Claude Code](https://docs.claude.com/en/docs/claude-code), the GitHub CLI **`gh` 2.102+**
-(for issue types, sub-issues and blocked-by), and `python3` for the hooks.
+This repo is a **Claude Code plugin marketplace**. One command installs everything — skills, agents, hooks and
+the always-on data-access rules. No copying files, no editing `settings.json`.
+
+**Inside Claude Code** (2.1.275 or newer):
+
+```
+/plugin install review-system --marketplace abdinasir-Tman/claude-skills-hooks-agents
+```
+
+Or in two steps (works on older versions too):
+
+```
+/plugin marketplace add abdinasir-Tman/claude-skills-hooks-agents
+/plugin install review-system@keyd-tools
+```
+
+**From the terminal:**
+
+```bash
+claude plugin marketplace add abdinasir-Tman/claude-skills-hooks-agents
+claude plugin install review-system@keyd-tools
+```
+
+Then run `/reload-plugins` (or start a new session). Done.
+
+| Command | What it does |
+|---|---|
+| `claude plugin marketplace update keyd-tools` | fetch the latest catalog |
+| `claude plugin update review-system@keyd-tools` | update the plugin |
+| `claude plugin disable review-system@keyd-tools` | turn it off without uninstalling |
+| `claude plugin uninstall review-system@keyd-tools` | remove it |
+| `claude plugin install review-system@keyd-tools --scope project` | install for one repo only (shared with the team via `.claude/settings.json`) |
+
+**Requirements:** the GitHub CLI **`gh` 2.102+** (issue types, sub-issues, blocked-by) and `python3` for the hooks.
+
+### What the plugin sets up
+
+| Piece | How it's loaded |
+|---|---|
+| 6 skills | `/review-system:<skill>`; Claude also picks them up automatically from their descriptions |
+| 3 reviewer agents | `review-system:gap-reviewer`, `review-system:security-reviewer`, `review-system:query-reviewer` |
+| Status hooks | `PreToolUse` on `Bash`, registered by [`hooks/hooks.json`](claude-review-system/hooks/hooks.json) |
+| Data-access rules | a `SessionStart` hook adds [`CLAUDE-data-access-section.md`](claude-review-system/CLAUDE-data-access-section.md) to every session — no `CLAUDE.md` edit needed |
+
+> **Already installed these by hand** in `~/.claude/skills`, `~/.claude/agents` and `~/.claude/hooks`? Remove
+> those copies, their hook entries in `~/.claude/settings.json`, and the data-access section in
+> `~/.claude/CLAUDE.md` — otherwise every skill, agent and rule is loaded twice.
+
+### Try it without installing
 
 ```bash
 git clone https://github.com/abdinasir-Tman/claude-skills-hooks-agents.git
-cd claude-skills-hooks-agents/claude-review-system
-
-mkdir -p ~/.claude/skills ~/.claude/agents ~/.claude/hooks
-cp -R skills/* ~/.claude/skills/
-cp agents/*.md ~/.claude/agents/
-cp hooks/*.py  ~/.claude/hooks/
-
-# always-on data-access rules
-cat CLAUDE-data-access-section.md >> ~/.claude/CLAUDE.md
+claude --plugin-dir claude-skills-hooks-agents/claude-review-system
 ```
-
-Register the hooks in `~/.claude/settings.json` (use your own home path):
-
-```json
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          { "type": "command", "command": "python3 -I /Users/<you>/.claude/hooks/github-in-review-checklist.py", "timeout": 90 },
-          { "type": "command", "command": "python3 -I /Users/<you>/.claude/hooks/github-in-dev-ready.py", "timeout": 90 }
-        ]
-      }
-    ]
-  }
-}
-```
-
-Then start a **new** Claude Code session — agents are loaded at session start.
-
-> Keep the paths as they are: the skills look for the stack checklists at `~/.claude/skills/review-rules/stacks/`
-> and for the data-access skill at `~/.claude/skills/data-access/`.
 
 ---
 
@@ -177,7 +204,7 @@ Then start a **new** Claude Code session — agents are loaded at session start.
 
 1. **Once per repo** — open the repo in Claude Code and run:
    ```
-   /review-rules
+   /review-system:review-rules
    ```
    Answer the questions it marks GUESS / ASK (tenancy, which routes are meant to be public, the worst things
    that could go wrong), then commit `.claude/review/`.
@@ -192,13 +219,14 @@ Then start a **new** Claude Code session — agents are loaded at session start.
 
 3. **Run a review on demand**
    ```
-   /gap-review            # against an issue number
-   /repo-security-review  # the current branch's diff
-   /query-review          # the current diff
-   /query-review --audit src/   # find existing waterfalls / N+1s
+   /review-system:gap-review 42                 # against issue #42
+   /review-system:repo-security-review          # the current branch's diff
+   /review-system:query-review                  # the current diff
+   /review-system:query-review --audit src/     # find existing waterfalls / N+1s
    ```
+   Or just ask — "review the security of this branch", "check this for N+1 queries" — and Claude picks the skill.
 
-4. **Run a whole plan in parallel** — `/github-issues implement <plan issue>`: issues are grouped into waves by
+4. **Run a whole plan in parallel** — `/review-system:github-issues implement <plan issue>`: issues are grouped into waves by
    their blocked-by links, up to 4 agents work in separate git worktrees, each wave is merged and passes the gate
    before the next starts.
 
@@ -219,3 +247,7 @@ elsewhere, edit `skills/github-issues/SKILL.md`:
 `review-rules`, `gap-review`, `repo-security-review`, `query-review` and `data-access` work in any repo with no
 changes. To support a new technology, add a checklist to `skills/review-rules/stacks/` with the same five
 sections.
+
+To ship your changes: fork the repo, edit, bump `version` in `claude-review-system/.claude-plugin/plugin.json`
+(installed copies only update when the version changes), check with
+`claude plugin validate .`, and install from your fork.

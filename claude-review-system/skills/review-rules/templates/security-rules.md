@@ -1,7 +1,7 @@
 # security-rules — <repo>
 
 Built from: commit <sha> on <YYYY-MM-DD> · Confirmed by user: <YYYY-MM-DD | NOT YET>
-Stacks: <comma list of ~/.claude/skills/review-rules/stacks/*.md names>
+Stacks: <comma list of ${CLAUDE_PLUGIN_ROOT}/skills/review-rules/stacks/*.md names>
 Refresh when changed: <paths whose change can invalidate these rules, e.g. schema, app entry, middleware dir, auth config, CLAUDE.md>
 
 Every rule ends with `— source: <file:line | CLAUDE.md:line | peer inference (n files) | user YYYY-MM-DD>`.

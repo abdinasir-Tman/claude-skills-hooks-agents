@@ -29,7 +29,7 @@ Include uncommitted changes too (`git diff HEAD --stat`) and say whether you did
 
 ## 2. Load the rules
 1. `<repo>/.claude/review/security-rules.md`. If missing: report `RULES: MISSING`, derive a minimal threat model yourself (tenancy column? auth middleware? public routes in the diff?) and mark every assumption.
-2. Each checklist on its `Stacks:` line: `~/.claude/skills/review-rules/stacks/<name>.md` — use its **Security checks**. Also load any checklist whose Detect matches files the diff adds (new dependency → new stack).
+2. Each checklist on its `Stacks:` line: `${CLAUDE_PLUGIN_ROOT}/skills/review-rules/stacks/<name>.md` — use its **Security checks**. Also load any checklist whose Detect matches files the diff adds (new dependency → new stack).
 3. `UNCONFIRMED` public routes are **not** allowed — an unauthenticated route that is only UNCONFIRMED is a finding (MEDIUM, or HIGH if it changes data).
 4. Diff touches a `Refresh when changed:` path or adds an auth/tenancy/webhook pattern the rules don't describe → list under **Rules to refresh**.
 

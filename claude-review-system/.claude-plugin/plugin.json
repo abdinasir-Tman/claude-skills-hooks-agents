@@ -1,0 +1,12 @@
+{
+  "name": "review-system",
+  "version": "1.0.0",
+  "description": "Track every job in GitHub Issues and pass a verification gate (gap review, security review, query review, end-to-end test) before review. Stops request waterfalls and N+1 queries in any stack.",
+  "author": {
+    "name": "abdinasir-Tman",
+    "url": "https://github.com/abdinasir-Tman"
+  },
+  "homepage": "https://github.com/abdinasir-Tman/claude-skills-hooks-agents",
+  "repository": "https://github.com/abdinasir-Tman/claude-skills-hooks-agents",
+  "keywords": ["code-review", "security", "github-issues", "n+1", "database", "workflow"]
+}

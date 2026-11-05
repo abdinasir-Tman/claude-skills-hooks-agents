@@ -5,7 +5,7 @@ description: Data-access review of pending changes, or an audit of existing code
 
 # Query review
 
-The method lives in `~/.claude/agents/query-reviewer.md`. The rules are the `data-access` skill (shapes + plan formats), the **Data access** sections of the stack checklists (`~/.claude/skills/review-rules/stacks/`), and the repo's `<repo>/.claude/review/gap-rules.md` → **Data access**. This skill collects the inputs, starts the agent, relays its report, and runs the measurement.
+The method lives in `${CLAUDE_PLUGIN_ROOT}/agents/query-reviewer.md`. The rules are the `data-access` skill (shapes + plan formats), the **Data access** sections of the stack checklists (`${CLAUDE_PLUGIN_ROOT}/skills/review-rules/stacks/`), and the repo's `<repo>/.claude/review/gap-rules.md` → **Data access**. This skill collects the inputs, starts the agent, relays its report, and runs the measurement.
 
 ## When to run
 
@@ -24,7 +24,7 @@ The diff touches DB queries or ORM calls, a schema/model/migration, an endpoint 
 
 ## 3. Run the reviewer — never inline
 
-Start `Agent` with `subagent_type: "query-reviewer"`:
+Start `Agent` with `subagent_type: "review-system:query-reviewer"`:
 
 ```
 Repo root: <path>
@@ -33,7 +33,7 @@ Issues: <Keyd-Solutions/<repo>#<n>… | none>
 Return at most ~15 lines plus one line per data path and per finding.
 ```
 
-If the agent type isn't available in this session (agents load at session start), use `subagent_type: "general-purpose"`, `model: "opus"`, `effort: "high"`, with the full body of `~/.claude/agents/query-reviewer.md` (after the front matter) above the inputs, adding: "Only use Read, Glob, Grep and read-only Bash; never edit."
+If the agent type isn't available in this session (agents load at session start), use `subagent_type: "general-purpose"`, `model: "opus"`, `effort: "high"`, with the full body of `${CLAUDE_PLUGIN_ROOT}/agents/query-reviewer.md` (after the front matter) above the inputs, adding: "Only use Read, Glob, Grep and read-only Bash; never edit."
 
 ## 4. Measure (gate step 4b)
 

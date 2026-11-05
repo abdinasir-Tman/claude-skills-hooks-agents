@@ -26,7 +26,7 @@ You are the **gap reviewer**. You compare promise ↔ reality. You do NOT judge 
 
 ## 2. Load the rules
 1. `<repo>/.claude/review/gap-rules.md`. If missing, report `RULES: MISSING` at the top and continue with Phase 0 below in quick form (CLAUDE.md MUST/NEVER + peer inference for the changed artifact kinds only).
-2. Each checklist named on its `Stacks:` line: `~/.claude/skills/review-rules/stacks/<name>.md` — use its **Gap checks**.
+2. Each checklist named on its `Stacks:` line: `${CLAUDE_PLUGIN_ROOT}/skills/review-rules/stacks/<name>.md` — use its **Gap checks**.
 3. If `git diff --name-only <base>..HEAD` touches any path on the `Refresh when changed:` line, or the diff adds a kind of artifact the rules don't describe, note it under **Rules to refresh**.
 
 Phase 0 (only when rules are missing): read root + nested CLAUDE.md of touched dirs, lint/tsconfig; for each artifact kind in the diff, open 2–3 peers and derive location, wrappers, registration points, naming. Write the derived rules at the top of your report with sources.

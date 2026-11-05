@@ -5,7 +5,7 @@ description: Audit implemented work against its GitHub issue(s), plan or task de
 
 # Gap review
 
-The method lives in the global agent `~/.claude/agents/gap-reviewer.md`. The repo's facts live in `<repo>/.claude/review/gap-rules.md`. This skill checks the inputs, starts the agent, and relays its report.
+The method lives in the global agent `${CLAUDE_PLUGIN_ROOT}/agents/gap-reviewer.md`. The repo's facts live in `<repo>/.claude/review/gap-rules.md`. This skill checks the inputs, starts the agent, and relays its report.
 
 ## 1. Collect the inputs
 
@@ -21,7 +21,7 @@ The method lives in the global agent `~/.claude/agents/gap-reviewer.md`. The rep
 
 ## 3. Run the reviewer — never inline
 
-Start `Agent` with `subagent_type: "gap-reviewer"`. Prompt:
+Start `Agent` with `subagent_type: "review-system:gap-reviewer"`. Prompt:
 
 ```
 Repo root: <path>
@@ -32,7 +32,7 @@ Coverage table: <table or "none">
 Return at most ~15 lines plus one line per spec item.
 ```
 
-If the `gap-reviewer` agent type isn't available (agents load at session start — a session started before the file existed won't see it), use `subagent_type: "general-purpose"`, `model: "opus"`, `effort: "high"`, and put the full body of `~/.claude/agents/gap-reviewer.md` (after the front matter) above the inputs, adding: "Only use Read, Glob, Grep and read-only Bash; never edit."
+If the `review-system:gap-reviewer` agent type isn't available (agents load at session start — a session started before the file existed won't see it), use `subagent_type: "general-purpose"`, `model: "opus"`, `effort: "high"`, and put the full body of `${CLAUDE_PLUGIN_ROOT}/agents/gap-reviewer.md` (after the front matter) above the inputs, adding: "Only use Read, Glob, Grep and read-only Bash; never edit."
 
 Run it on the branch under review in the main checkout (no worktree) unless the caller says otherwise.
 

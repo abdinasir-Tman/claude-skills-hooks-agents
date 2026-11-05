@@ -5,7 +5,7 @@ description: Security review of the pending changes in any repository using that
 
 # Repo security review
 
-The method lives in `~/.claude/agents/security-reviewer.md`. The repo's threat model lives in `<repo>/.claude/review/security-rules.md`. This skill checks the inputs, starts the agent and relays its report.
+The method lives in `${CLAUDE_PLUGIN_ROOT}/agents/security-reviewer.md`. The repo's threat model lives in `<repo>/.claude/review/security-rules.md`. This skill checks the inputs, starts the agent and relays its report.
 
 ## When to run
 
@@ -23,7 +23,7 @@ Same as gap-review: `security-rules.md` missing → run `review-rules` first; if
 
 ## 3. Run the reviewer — never inline
 
-Start `Agent` with `subagent_type: "security-reviewer"`. Prompt:
+Start `Agent` with `subagent_type: "review-system:security-reviewer"`. Prompt:
 
 ```
 Repo root: <path>
@@ -32,7 +32,7 @@ Issues: <Keyd-Solutions/<repo>#<n>… | none>
 Return at most ~15 lines plus one line per finding.
 ```
 
-If the agent type isn't available in this session, use `subagent_type: "general-purpose"`, `model: "opus"`, `effort: "high"`, with the full body of `~/.claude/agents/security-reviewer.md` (after the front matter) above the inputs, adding: "Only use Read, Glob, Grep and read-only Bash; never edit."
+If the agent type isn't available in this session, use `subagent_type: "general-purpose"`, `model: "opus"`, `effort: "high"`, with the full body of `${CLAUDE_PLUGIN_ROOT}/agents/security-reviewer.md` (after the front matter) above the inputs, adding: "Only use Read, Glob, Grep and read-only Bash; never edit."
 
 ## 4. Relay and follow up
 
